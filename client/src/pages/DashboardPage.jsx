@@ -296,6 +296,7 @@ const DashboardPage = () => {
   // ==========================================================
 
   const handlePromptSubmit = async (e) => {
+    console.log("🔥 HANDLE PROMPT SUBMIT RUNNING");
     e.preventDefault();
 
     const trimmedPrompt =
