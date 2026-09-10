@@ -296,85 +296,70 @@ const DashboardPage = () => {
   // ==========================================================
 
   const handlePromptSubmit = async (e) => {
+  e.preventDefault();
+
+  const trimmedPrompt = prompt.trim();
+
+  if (!trimmedPrompt || generating) {
+    return;
+  }
+
+  try {
+    setGenerating(true);
+    setProjectsError("");
+
     console.log("🔥 HANDLE PROMPT SUBMIT RUNNING");
-    e.preventDefault();
+    console.log("🚀 SiteCraft API Base URL:", API.defaults.baseURL);
 
-    const trimmedPrompt =
-      prompt.trim();
+    const response = await API.post("/projects", {
+      prompt: trimmedPrompt,
+    });
 
-    if (
-      !trimmedPrompt ||
-      generating
-    ) {
+    console.log("✅ Create Project Response:", response.data);
+
+    const createdProject =
+      response.data?.project || response.data;
+
+    const projectId =
+      createdProject?._id ||
+      createdProject?.id;
+
+    if (!projectId) {
+      throw new Error(
+        "Project ID was not returned by the server."
+      );
+    }
+
+    setPrompt("");
+
+    // Background generation has already
+    // started on the server.
+    navigate(`/builder/${projectId}`);
+
+    return;
+  } catch (error) {
+    console.error(
+      "❌ Create project error:",
+      error
+    );
+
+    if (error.response?.status === 401) {
+      navigate("/login", {
+        replace: true,
+      });
+
       return;
     }
 
-    try {
-      setGenerating(true);
-
-      setProjectsError("");
-console.log("🚀 SiteCraft API Base URL:", API.defaults.baseURL);
-      const response = await API.post(
-        "/projects",
-        {
-          prompt: trimmedPrompt,
-        }
-      );
-
-      if (response.data.success) {
-        const createdProject =
-          response.data.project;
-
-        const projectId =
-          createdProject?._id ||
-          createdProject?.id;
-
-        if (!projectId) {
-          throw new Error(
-            "Project ID was not returned by the server."
-          );
-        }
-
-        setPrompt("");
-
-        // Background generation has already
-        // started on the server.
-        navigate(
-          `/builder/${projectId}`
-        );
-
-        return;
-      }
-
-      setProjectsError(
-        response.data.message ||
-          "Unable to create your project."
-      );
-    } catch (error) {
-      console.error(
-        "Create project error:",
-        error
-      );
-
-      if (
-        error.response?.status === 401
-      ) {
-        navigate("/login", {
-          replace: true,
-        });
-
-        return;
-      }
-
-      setProjectsError(
-        error.response?.data?.message ||
-          error.message ||
-          "Unable to create your project. Please try again."
-      );
-    } finally {
-      setGenerating(false);
-    }
-  };
+    setProjectsError(
+      error.response?.data?.message ||
+        error.message ||
+        "Unable to create your project. Please try again."
+    );
+  } finally {
+    setGenerating(false);
+  }
+};
 
 
   // ==========================================================
