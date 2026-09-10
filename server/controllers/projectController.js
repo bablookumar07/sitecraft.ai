@@ -325,29 +325,25 @@ export const createProject = async (req, res) => {
 // LIST PROJECTS
 // ============================================================
 
-export const listProjects = async (
-  req,
-  res
-) => {
+export const listProjects = async (req, res) => {
   try {
-    const projects =
-      await Project.find({
-        userId: req.userId,
-      }).sort({
-        createdAt: -1,
-      });
+    const projects = await Project.find({
+      userId: req.userId,
+    }).sort({
+      createdAt: -1,
+    });
 
-    return res.json(projects);
+    return res.json({
+      success: true,
+      projects,
+    });
   } catch (error) {
-    console.error(
-      "❌ List projects error:",
-      error
-    );
+    console.error("❌ List projects error:", error);
 
     return res.status(500).json({
       success: false,
-      message:
-        "Failed to fetch projects",
+      message: "Failed to fetch projects",
+      projects: [],
     });
   }
 };

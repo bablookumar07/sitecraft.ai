@@ -220,8 +220,15 @@ const DashboardPage = () => {
 
         setProjectsLoading(true);
 
-        const response =
-          await API.get("/projects");
+        const response = await API.get("/projects", {
+  params: {
+    t: Date.now(),
+  },
+  headers: {
+    "Cache-Control": "no-cache",
+    Pragma: "no-cache",
+  },
+});
 
         if (response.data.success) {
           setProjects(
