@@ -312,7 +312,7 @@ const DashboardPage = () => {
       setGenerating(true);
 
       setProjectsError("");
-
+console.log("🚀 SiteCraft API Base URL:", API.defaults.baseURL);
       const response = await API.post(
         "/projects",
         {
